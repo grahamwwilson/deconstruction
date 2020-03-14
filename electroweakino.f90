@@ -35,33 +35,33 @@ subroutine electroweakino(M1,M2,mu,tanb)
 !
   implicit none
 
-!  integer, parameter :: real_8_30 = selected_real_kind(p=8,r=30)
+  integer, parameter :: real_8_30 = selected_real_kind(p=8,r=30)
   integer :: i
   integer :: irow,jcol
   integer :: iordered(4)
-  real :: M1, M2, mu, tanb
-  real :: mZ, mW, s2W, cW, sW, beta, cb, sb
-  real :: v1(4),v2(4),v3(4),v4(4)               ! Neutralino compositions
-  real :: Y(4,4)
-  real :: X(2,2)
+  real(real_8_30), intent(in) :: M1, M2, mu, tanb
+  real(real_8_30) :: mZ, mW, s2W, cW, sW, beta, cb, sb
+  real(real_8_30) :: v1(4),v2(4),v3(4),v4(4)               ! Neutralino compositions
+  real(real_8_30) :: Y(4,4)
+  real(real_8_30) :: X(2,2)
 ! Chargino mass matrix gymnastics. Should be such that Z = U X V is diagonal.
-  real :: XXT(2,2)   ! X X^T - leads to the U matrix
-  real :: XTX(2,2)   ! X^T X - leads to the V matrix
-  real :: U(2,2)
-  real :: V(2,2)
-  real :: D(2,2)
-  real :: XV(2,2)
-  real :: Identity(2,2)
+  real(real_8_30) :: XXT(2,2)   ! X X^T - leads to the U matrix
+  real(real_8_30) :: XTX(2,2)   ! X^T X - leads to the V matrix
+  real(real_8_30) :: U(2,2)
+  real(real_8_30) :: V(2,2)
+  real(real_8_30) :: D(2,2)
+  real(real_8_30) :: XV(2,2)
+  real(real_8_30) :: Identity(2,2)
 ! LAPACK SSYEV arguments
   character(len=1) :: jobz, uplo
   integer :: info, lda, lwork, n
-  real :: w(4), work(100)
-  real :: eigsu(2),eigsv(2)
+  real(real_8_30) :: w(4), work(100)
+  real(real_8_30) :: eigsu(2),eigsv(2)
 ! Mass spectrum (ordered)
-  real :: nmass(4)
-  real :: cmass(2)
-  real :: snmass(4)
-!  real :: n11sq,n12sq,n13sq,n14sq
+  real(real_8_30) :: nmass(4)
+  real(real_8_30) :: cmass(2)
+  real(real_8_30) :: snmass(4)
+!  real(real_8_30) :: n11sq,n12sq,n13sq,n14sq
   common/mval/nmass,cmass,v1,v2,v3,v4,U,V,snmass
   
 !  logical :: lprint
@@ -69,20 +69,20 @@ subroutine electroweakino(M1,M2,mu,tanb)
   include 'lprint.inc'
 
 ! Initialize a 2*2 identity matrix
-  Identity(1,1) = 1.0
-  Identity(1,2) = 0.0
-  Identity(2,1) = 0.0
-  Identity(2,2) = 1.0
+  Identity(1,1) = 1.0d0
+  Identity(1,2) = 0.0d0
+  Identity(2,1) = 0.0d0
+  Identity(2,2) = 1.0d0
 
   if(lprint)print *,'M1=',M1,' M2=',M2,' mu=',mu,' tanb=',tanb
 
 ! constants
-  mZ  = 91.1876
-  mW  = 80.379
-  s2W = 0.232
+  mZ  = 91.1876d0
+  mW  = 80.379d0
+  s2W = 0.232d0
   sW = sqrt(s2W)
-  cW = sqrt(1.0-s2W)
-  beta = atan2(tanb,1.0)
+  cW = sqrt(1.0d0-s2W)
+  beta = atan2(tanb,1.0d0)
   cb = cos(beta)
   sb = sin(beta)
 
@@ -99,24 +99,24 @@ subroutine electroweakino(M1,M2,mu,tanb)
 ! But anyway Y(i,j) means Y(irow, jcol)
 !
   Y(1,1) =  M1
-  Y(1,2) =  0.0
+  Y(1,2) =  0.0d0
   Y(1,3) = -mZ*sW*cb
   Y(1,4) =  mZ*sW*sb
 
-  Y(2,1) =  0.0
+  Y(2,1) =  0.0d0
   Y(2,2) =  M2
   Y(2,3) =  mZ*cW*cb
   Y(2,4) = -mZ*cW*sb
 
   Y(3,1) = -mZ*sW*cb
   Y(3,2) =  mZ*cW*cb
-  Y(3,3) =  0.0
+  Y(3,3) =  0.0d0
   Y(3,4) = -mu
 
   Y(4,1) =  mZ*sW*sb
   Y(4,2) = -mZ*cW*sb
   Y(4,3) = -mu
-  Y(4,4) =  0.0 
+  Y(4,4) =  0.0d0 
 
 ! I originally followed the convention for X in equation C9 of 
 ! Haber and Kane, and eqn A2 of Barnett and Haber, 
@@ -126,8 +126,8 @@ subroutine electroweakino(M1,M2,mu,tanb)
 ! different than expected from Martin.
 
   X(1,1) =  M2
-  X(1,2) =  sqrt(2.0)*mW*sb
-  X(2,1) =  sqrt(2.0)*mW*cb
+  X(1,2) =  sqrt(2.0d0)*mW*sb
+  X(2,1) =  sqrt(2.0d0)*mW*cb
   X(2,2) =  mu
 
   do irow=1,4,1
@@ -165,7 +165,7 @@ subroutine electroweakino(M1,M2,mu,tanb)
   n = 4
   lwork = 100
 !  call ssyev(jobz,uplo,n,Y,lda,w,work,lwork,info)
-  call ssyev('V','U',4,Y,4,w,work,lwork,info)  ! this works too. 
+  call dsyev('V','U',4,Y,4,w,work,lwork,info)  ! this works too. 
                                                ! less hassle (if done correctly)
 
 ! Results
@@ -221,25 +221,25 @@ subroutine electroweakino(M1,M2,mu,tanb)
   call checkdet(X)
 
 ! Now deal with the chargino mass matrices etc.
-  call sgemm('N','T',2,2,2,1.0,X,2,X,2,0.0,XXT,2)  ! Form X X^T
-  call sgemm('T','N',2,2,2,1.0,X,2,X,2,0.0,XTX,2)  ! Form X^T X
+  call dgemm('N','T',2,2,2,1.0,X,2,X,2,0.0,XXT,2)  ! Form X X^T
+  call dgemm('T','N',2,2,2,1.0,X,2,X,2,0.0,XTX,2)  ! Form X^T X
   if(lprint)call printmatrix('  X  ',X)
   if(lprint)call printmatrix('X X^T',XXT)  ! symmetric
   if(lprint)call printmatrix('X^T X',XTX)  ! symmetric
 ! Now eigenvalues/eigenvectors for each 
 ! - matrix gets overwritten with the matrix of eigenvectors
-  call ssyev('V','U',2,XXT,2,eigsu,work,lwork,info)
-  call ssyev('V','U',2,XTX,2,eigsv,work,lwork,info)
+  call dsyev('V','U',2,XXT,2,eigsu,work,lwork,info)
+  call dsyev('V','U',2,XTX,2,eigsv,work,lwork,info)
   if(lprint)call printvector('  u  ',eigsu)
   if(lprint)call printmatrix('(U)  ',XXT)
   if(lprint)call printvector('  v  ',eigsv)
   if(lprint)call printmatrix('(V)  ',XTX)
-  call sgemm('N','N',2,2,2,1.0,XXT,2,Identity,2,0.0,U,2)  ! Make a copy called U 
-  call sgemm('N','N',2,2,2,1.0,XTX,2,Identity,2,0.0,V,2)  ! Make a copy called V
+  call dgemm('N','N',2,2,2,1.0,XXT,2,Identity,2,0.0,U,2)  ! Make a copy called U 
+  call dgemm('N','N',2,2,2,1.0,XTX,2,Identity,2,0.0,V,2)  ! Make a copy called V
   if(lprint)call printmatrix('  U  ',U)
   if(lprint)call printmatrix('  V  ',V)
-  call sgemm('N','N',2,2,2,1.0,X,2,V,2,0.0,XV,2)  ! Form XV
-  call sgemm('N','N',2,2,2,1.0,U,2,XV,2,0.0,D,2)  ! Form D=UXV
+  call dgemm('N','N',2,2,2,1.0,X,2,V,2,0.0,XV,2)  ! Form XV
+  call dgemm('N','N',2,2,2,1.0,U,2,XV,2,0.0,D,2)  ! Form D=UXV
   if(lprint)call printmatrix('  D  ',D)
   cmass(1) = sqrt(eigsu(1))
   cmass(2) = sqrt(eigsu(2))
@@ -285,7 +285,7 @@ subroutine elkheishen(M1,M2,mu,tanb,mZ,beta,s2W)
 implicit none
    
   integer, parameter :: real_8_30 = selected_real_kind(p=8,r=30)
-  real, intent(in) :: M1,M2,mu,tanb,mZ,beta,s2W
+  real(real_8_30), intent(in) :: M1,M2,mu,tanb,mZ,beta,s2W
   real(real_8_30) :: c2,c3,c4
   real(real_8_30) :: msum,mt1,mt2,mt3,c2W
   real(real_8_30) :: D,U,S
@@ -351,7 +351,7 @@ subroutine gounaris(sM1,sM2,smu,stanb,smZ,sbeta,ss2W)
 implicit none
    
   integer, parameter :: real_8_30 = selected_real_kind(p=8,r=30)
-  real, intent(in) :: sM1,sM2,smu,stanb,smZ,sbeta,ss2W
+  real(real_8_30), intent(in) :: sM1,sM2,smu,stanb,smZ,sbeta,ss2W
   real(real_8_30) :: M1,M2,mu,tanb,mZ,beta,s2W
   real(real_8_30) :: c2W
   real(real_8_30) :: bigA, bigB, bigC, bigD
@@ -361,13 +361,16 @@ implicit none
   real(real_8_30) :: alphap,alpham,betap,betam
   real(real_8_30) :: mass1, mass2, mass3, mass4
   real(real_8_30) :: c1, c2, c3, c4
+  real(real_8_30) :: d1, d2, d3, d4
+  real(real_8_30) :: e1, e2, e3, e4
 
 ! Make everything DP from now
-  M1 = dble(sM1)
-  M2 = dble(sM2)
-  mu = dble(smu)
+! Also make mass units 100 GeV
+  M1 = 0.01d0*dble(sM1)
+  M2 = 0.01d0*dble(sM2)
+  mu = 0.01d0*dble(smu)
   tanb = dble(stanb)
-  mZ = dble(smZ)
+  mZ = 0.01d0*dble(smZ)
   beta = dble(sbeta)
   s2W = dble(ss2W)
   c2W = 1.0d0-s2W
@@ -412,7 +415,7 @@ implicit none
   mass3 = 0.5d0*( alphap - sqrt( alphap*alphap + betam ) )
   mass4 = 0.5d0*( alphap + sqrt( alphap*alphap + betam ) )
 
-  print *,' m1, m2, m3, m4 ',mass1,mass2,mass3,mass4
+  print *,' m1, m2, m3, m4 (GeV) ',1.0d2*mass1,1.0d2*mass2,1.0d2*mass3,1.0d2*mass4
 
 ! Check how well each satisfies the quartic equation (Eqn 10).
   c1 = mass1**4 - bigA*mass1**3 + bigB*mass1**2 - bigC*mass1 + bigD
@@ -420,18 +423,31 @@ implicit none
   c3 = mass3**4 - bigA*mass3**3 + bigB*mass3**2 - bigC*mass3 + bigD
   c4 = mass4**4 - bigA*mass4**3 + bigB*mass4**2 - bigC*mass4 + bigD
 
-  print *,' c1, c2, c3, c4 ',c1,c2,c3,c4 
+  print *,' c1, c2, c3, c4       ',c1,c2,c3,c4 
 
+! Increase by 0.01%
+  d1 = (mass1*1.0001d0)**4 - bigA*(mass1*1.0001d0)**3 + bigB*(mass1*1.0001d0)**2 - bigC*(mass1*1.0001d0) + bigD
+  d2 = (mass2*1.0001d0)**4 - bigA*(mass2*1.0001d0)**3 + bigB*(mass2*1.0001d0)**2 - bigC*(mass2*1.0001d0) + bigD
+  d3 = (mass3*1.0001d0)**4 - bigA*(mass3*1.0001d0)**3 + bigB*(mass3*1.0001d0)**2 - bigC*(mass3*1.0001d0) + bigD
+  d4 = (mass4*1.0001d0)**4 - bigA*(mass4*1.0001d0)**3 + bigB*(mass4*1.0001d0)**2 - bigC*(mass4*1.0001d0) + bigD
+! Decrease by 0.01%
+  e1 = (mass1/1.0001d0)**4 - bigA*(mass1/1.0001d0)**3 + bigB*(mass1/1.0001d0)**2 - bigC*(mass1/1.0001d0) + bigD
+  e2 = (mass2/1.0001d0)**4 - bigA*(mass2/1.0001d0)**3 + bigB*(mass2/1.0001d0)**2 - bigC*(mass2/1.0001d0) + bigD
+  e3 = (mass3/1.0001d0)**4 - bigA*(mass3/1.0001d0)**3 + bigB*(mass3/1.0001d0)**2 - bigC*(mass3/1.0001d0) + bigD
+  e4 = (mass4/1.0001d0)**4 - bigA*(mass4/1.0001d0)**3 + bigB*(mass4/1.0001d0)**2 - bigC*(mass4/1.0001d0) + bigD
+
+  print *,' d1, d2, d3, d4       ',d1,d2,d3,d4 
+  print *,' e1, e2, e3, e4       ',e1,e2,e3,e4 
 
 end subroutine gounaris
 
 subroutine printvector(vectorname,x)
 implicit none
-
+integer, parameter :: real_8_30 = selected_real_kind(p=8,r=30)
 logical :: lstandard
 parameter (lstandard = .false.)
 character(len=5) :: vectorname
-real :: x(2)
+real(real_8_30) :: x(2)
 
 print *,' '
 print *,'Vector ',vectorname
@@ -451,9 +467,9 @@ end subroutine printvector
 
 subroutine printmatrix(matrixname,X)
 implicit none
-
+integer, parameter :: real_8_30 = selected_real_kind(p=8,r=30)
 character(len=5) :: matrixname
-real :: X(2,2)
+real(real_8_30) :: X(2,2)
 integer :: i,j
 
 print *,' '
@@ -467,8 +483,9 @@ end subroutine printmatrix
 
 subroutine checkdet(X)
 implicit none
-real :: X(2,2)
-real :: a,b,c,d,det
+integer, parameter :: real_8_30 = selected_real_kind(p=8,r=30)
+real(real_8_30) :: X(2,2)
+real(real_8_30) :: a,b,c,d,det
 include 'lprint.inc'
 
 a = X(1,1)
@@ -484,9 +501,10 @@ end subroutine checkdet
 
 subroutine charginomasses(M1,M2,mu,tanb)
 implicit none
-real :: M1, M2, mu, tanb
-real :: mZ, mW, s2W, cW, sW, beta, cb, sb, c2b, s2b
-real :: msqsum,msqdif,msqdifsq,mass1,mass2
+  integer, parameter :: real_8_30 = selected_real_kind(p=8,r=30)
+real(real_8_30) :: M1, M2, mu, tanb
+real(real_8_30) :: mZ, mW, s2W, cW, sW, beta, cb, sb, c2b, s2b
+real(real_8_30) :: msqsum,msqdif,msqdifsq,mass1,mass2
 include 'lprint.inc'
 
 ! constants
@@ -495,7 +513,7 @@ mW  = 80.379
 s2W = 0.232
 sW = sqrt(s2W)
 cW = sqrt(1.0-s2W)
-beta = atan2(tanb,1.0)
+beta = atan2(tanb,1.0d0)
 cb = cos(beta)
 sb = sin(beta)
 c2b = cos(2.0*beta)
@@ -518,14 +536,15 @@ subroutine sortthem(w,iordered)
 ! Take the mass eigenvalues and sort them by absolute value
 ! This is a bit of a clumsy implementation but is likely OK for 4 elements
 implicit none
-real :: w(4)
+  integer, parameter :: real_8_30 = selected_real_kind(p=8,r=30)
+real(real_8_30) :: w(4)
 integer :: i
 integer :: iordered(4)
 integer :: imin,imax
 integer :: i2,i3,j2,j3
 integer :: checksum
-real :: minmass
-real :: maxmass
+real(real_8_30) :: minmass
+real(real_8_30) :: maxmass
 
 do i=1,4
    if(i.eq.1)then
