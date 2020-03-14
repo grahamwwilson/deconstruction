@@ -89,6 +89,9 @@ subroutine electroweakino(M1,M2,mu,tanb)
 ! Play with El Kheishen formulae
   call elkheishen(M1,M2,mu,tanb,mZ,beta,s2W)
 
+! Play with Gounaris formulae
+  call gounaris(M1,M2,mu,tanb,mZ,beta,s2W)
+
 ! The Y matrix is symmetric so it doesn't matter whether 
 ! we are thinking correctly about column-major or row-major order. 
 ! Fortran is column-major in terms of storage.
@@ -276,6 +279,9 @@ end subroutine electroweakino
 
 subroutine elkheishen(M1,M2,mu,tanb,mZ,beta,s2W)
 ! Evaluate constants in Eqns 24-28 of El Kheishen, Shafik, Aboshousha (PRD45 (1992) 4345)
+! This does not yet seem to be doing what it should.
+! Suspect Gounaris, LeMouel, Profyriadis is cleaner - so will code that up in 
+! gounaris subroutine
 implicit none
    
   integer, parameter :: real_8_30 = selected_real_kind(p=8,r=30)
@@ -338,6 +344,86 @@ implicit none
   print *,' m1, m2, m3, m4 ',mass1,mass2,mass3,mass4
 
 end subroutine elkheishen
+
+subroutine gounaris(sM1,sM2,smu,stanb,smZ,sbeta,ss2W)
+! Follow Gounaris, LeMouel, Profyriadis (Phys.Rev. D65 (2002) 035002) 
+! for determining neutralino masses analytically 
+implicit none
+   
+  integer, parameter :: real_8_30 = selected_real_kind(p=8,r=30)
+  real, intent(in) :: sM1,sM2,smu,stanb,smZ,sbeta,ss2W
+  real(real_8_30) :: M1,M2,mu,tanb,mZ,beta,s2W
+  real(real_8_30) :: c2W
+  real(real_8_30) :: bigA, bigB, bigC, bigD
+  real(real_8_30) :: a,b,Delta
+  real(real_8_30) :: c,c3phi,phi,theta
+  real(real_8_30) :: E,F
+  real(real_8_30) :: alphap,alpham,betap,betam
+  real(real_8_30) :: mass1, mass2, mass3, mass4
+  real(real_8_30) :: c1, c2, c3, c4
+
+! Make everything DP from now
+  M1 = dble(sM1)
+  M2 = dble(sM2)
+  mu = dble(smu)
+  tanb = dble(stanb)
+  mZ = dble(smZ)
+  beta = dble(sbeta)
+  s2W = dble(ss2W)
+  c2W = 1.0d0-s2W
+
+! Eqn 11
+  bigA = M1 + M2
+  bigB = M1*M2 - mu*mu - mZ*mZ
+  bigC = -M1*(mu*mu + mZ*mZ*c2W) -M2*(mu*mu + mZ*mZ*s2W)
+  bigD = -M1*M2*mu*mu + mu*mZ*mZ*sin(2.0d0*beta)*(M1*c2W + M2*s2W)
+
+! Eqn 12
+  a = -0.25d0*( bigD + (bigB*bigB/12.0d0) - (bigA*bigC/4.0d0) )
+  b =  0.25d0*( (-bigA*bigA*bigD/16.0d0) + (bigA*bigB*bigC/48.0d0) - (bigB*bigB*bigB/216.0d0) + &
+                (bigB*bigD/6.0d0) - (bigC*bigC/16.0d0) )
+! Eqn 13
+  Delta = 0.25d0*b*b + (a*a*a/27.0d0)
+  
+  print *,'Gounaris: A,B,C,D   ',bigA,bigB,bigC,bigD
+  print *,'Gounaris: a,b,Delta ',a,b,Delta 
+
+! Eqn 14 (need to check that Delta and a have correct sign ... TODO)
+  c = sqrt(3.0d0/abs(a))
+  c3phi = -0.5d0*b*c*c*c
+  phi = (acos(c3phi))/3.0d0
+  theta = 2.0d0*sqrt(abs(a)/3.0d0)*cos(phi)
+
+! Eqn 17
+  E = 0.25d0*sqrt(bigA*bigA - (8.0d0*bigB/3.0d0) + 16.0d0*theta)
+  F = (0.25d0/E)*(bigC - (bigA*bigB/6.0d0) -2.0d0*bigA*theta)
+  print *,'Gounaris: theta,E,F ',theta,E,F
+
+! Eqn 18
+  alphap = (0.5d0*bigA + 2.0d0*E)
+  alpham = (0.5d0*bigA - 2.0d0*E)
+  betap  = -4.0d0*( (bigB/6.0d0) + 2.0d0*theta + F )
+  betam  = -4.0d0*( (bigB/6.0d0) + 2.0d0*theta - F )
+  print *,'Gounaris: alpha-+ ',alpham,alphap
+  print *,'Gounaris:  beta-+ ',betam,betap
+
+  mass1 = 0.5d0*( alpham - sqrt( alpham*alpham + betap ) )
+  mass2 = 0.5d0*( alpham + sqrt( alpham*alpham + betap ) )
+  mass3 = 0.5d0*( alphap - sqrt( alphap*alphap + betam ) )
+  mass4 = 0.5d0*( alphap + sqrt( alphap*alphap + betam ) )
+
+  print *,' m1, m2, m3, m4 ',mass1,mass2,mass3,mass4
+
+! Check how well each satisfies the quartic equation (Eqn 10).
+  c1 = mass1**4 - bigA*mass1**3 + bigB*mass1**2 - bigC*mass1 + bigD
+  c2 = mass2**4 - bigA*mass2**3 + bigB*mass2**2 - bigC*mass2 + bigD
+  c3 = mass3**4 - bigA*mass3**3 + bigB*mass3**2 - bigC*mass3 + bigD
+  c4 = mass4**4 - bigA*mass4**3 + bigB*mass4**2 - bigC*mass4 + bigD
+
+  print *,' c1, c2, c3, c4 ',c1,c2,c3,c4 
+
+
+end subroutine gounaris
 
 subroutine printvector(vectorname,x)
 implicit none
