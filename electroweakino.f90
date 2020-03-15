@@ -86,8 +86,8 @@ subroutine electroweakino(M1,M2,mu,tanb)
   cb = cos(beta)
   sb = sin(beta)
 
-! Play with El Kheishen formulae
-  call elkheishen(M1,M2,mu,tanb,mZ,beta,s2W)
+! Play with El Kheishen formulae (this does NOT work ...)
+!  call elkheishen(M1,M2,mu,tanb,mZ,beta,s2W)
 
 ! Play with Gounaris formulae
   call gounaris(M1,M2,mu,tanb,mZ,beta,s2W)
@@ -378,7 +378,7 @@ implicit none
 ! Eqn 11
   bigA = M1 + M2
   bigB = M1*M2 - mu*mu - mZ*mZ
-  bigC = -M1*(mu*mu + mZ*mZ*c2W) -M2*(mu*mu + mZ*mZ*s2W)
+  bigC = -M1*(mu*mu + mZ*mZ*c2W) -M2*(mu*mu + mZ*mZ*s2W) + mu*mZ*mZ*sin(2.0d0*beta)
   bigD = -M1*M2*mu*mu + mu*mZ*mZ*sin(2.0d0*beta)*(M1*c2W + M2*s2W)
 
 ! Eqn 12
