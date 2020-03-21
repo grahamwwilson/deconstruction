@@ -221,8 +221,8 @@ subroutine electroweakino(M1,M2,mu,tanb)
   call checkdet(X)
 
 ! Now deal with the chargino mass matrices etc.
-  call dgemm('N','T',2,2,2,1.0,X,2,X,2,0.0,XXT,2)  ! Form X X^T
-  call dgemm('T','N',2,2,2,1.0,X,2,X,2,0.0,XTX,2)  ! Form X^T X
+  call dgemm('N','T',2,2,2,1.0d0,X,2,X,2,0.0d0,XXT,2)  ! Form X X^T
+  call dgemm('T','N',2,2,2,1.0d0,X,2,X,2,0.0d0,XTX,2)  ! Form X^T X
   if(lprint)call printmatrix('  X  ',X)
   if(lprint)call printmatrix('X X^T',XXT)  ! symmetric
   if(lprint)call printmatrix('X^T X',XTX)  ! symmetric
@@ -234,12 +234,12 @@ subroutine electroweakino(M1,M2,mu,tanb)
   if(lprint)call printmatrix('(U)  ',XXT)
   if(lprint)call printvector('  v  ',eigsv)
   if(lprint)call printmatrix('(V)  ',XTX)
-  call dgemm('N','N',2,2,2,1.0,XXT,2,Identity,2,0.0,U,2)  ! Make a copy called U 
-  call dgemm('N','N',2,2,2,1.0,XTX,2,Identity,2,0.0,V,2)  ! Make a copy called V
+  call dgemm('N','N',2,2,2,1.0d0,XXT,2,Identity,2,0.0d0,U,2)  ! Make a copy called U 
+  call dgemm('N','N',2,2,2,1.0d0,XTX,2,Identity,2,0.0d0,V,2)  ! Make a copy called V
   if(lprint)call printmatrix('  U  ',U)
   if(lprint)call printmatrix('  V  ',V)
-  call dgemm('N','N',2,2,2,1.0,X,2,V,2,0.0,XV,2)  ! Form XV
-  call dgemm('N','N',2,2,2,1.0,U,2,XV,2,0.0,D,2)  ! Form D=UXV
+  call dgemm('N','N',2,2,2,1.0d0,X,2,V,2,0.0d0,XV,2)  ! Form XV
+  call dgemm('N','N',2,2,2,1.0d0,U,2,XV,2,0.0d0,D,2)  ! Form D=UXV
   if(lprint)call printmatrix('  D  ',D)
   cmass(1) = sqrt(eigsu(1))
   cmass(2) = sqrt(eigsu(2))
@@ -508,24 +508,24 @@ real(real_8_30) :: msqsum,msqdif,msqdifsq,mass1,mass2
 include 'lprint.inc'
 
 ! constants
-mZ  = 91.1876
-mW  = 80.379
-s2W = 0.232
+mZ  = 91.1876d0
+mW  = 80.379d0
+s2W = 0.232d0
 sW = sqrt(s2W)
 cW = sqrt(1.0-s2W)
 beta = atan2(tanb,1.0d0)
 cb = cos(beta)
 sb = sin(beta)
-c2b = cos(2.0*beta)
-s2b = sin(2.0*beta)
+c2b = cos(2.0d0*beta)
+s2b = sin(2.0d0*beta)
 
 ! Formula here is from Barnett and Haber, Phys. Rev. D 31, 85 (1985). Eqn A4.
-msqsum = M2*M2 + mu*mu + 2.0*mW*mW
-msqdifsq = (M2**2-mu**2)**2 + 4.0*mW**4*c2b**2 + 4.0*mW*mW*(M2**2 + mu**2 + 2.0*M2*mu*s2b)
+msqsum = M2*M2 + mu*mu + 2.0d0*mW*mW
+msqdifsq = (M2**2-mu**2)**2 + 4.0d0*mW**4*c2b**2 + 4.0d0*mW*mW*(M2**2 + mu**2 + 2.0d0*M2*mu*s2b)
 msqdif = sqrt(msqdifsq)
 
-mass1 = sqrt(0.5*(msqsum-msqdif))
-mass2 = sqrt(0.5*(msqsum+msqdif))
+mass1 = sqrt(0.5d0*(msqsum-msqdif))
+mass2 = sqrt(0.5d0*(msqsum+msqdif))
 
 if(lprint)print *,'Chargino masses ',mass1,mass2
 ! Checked with Mathematica
