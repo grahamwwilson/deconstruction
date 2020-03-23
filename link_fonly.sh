@@ -15,10 +15,10 @@
 #
 ln -s lprint_true.inc lprint.inc
 
-ln -s ewdriver_Method2_Point0.dat ewdriver_inputs.dat
+#ln -s ewdriver_Method2_Point0.dat ewdriver_inputs.dat
 #ln -s glpA.dat ewdriver_inputs.dat
 #ln -s glpD.dat ewdriver_inputs.dat
-#ln -s test.dat ewdriver_inputs.dat
+ln -s testp.dat ewdriver_inputs.dat
 
 gfortran -c electroweakino.f90
 gfortran -o ewdriver ewdriver.f90 electroweakino.o -lblas -llapack
