@@ -245,14 +245,22 @@ subroutine electroweakino(M1,M2,mu,tanb)
   cmass(2) = sqrt(eigsu(2))
   if(lprint)then
      write(6,4001)M1,M2,mu,tanb
-     write(6,5000)
-     write(6,5001)nmass(1),abs(v1(1)),abs(v1(2)),abs(v1(3)),abs(v1(4))
-     write(6,5001)nmass(2),abs(v2(1)),abs(v2(2)),abs(v2(3)),abs(v2(4))
-     write(6,5001)nmass(3),abs(v3(1)),abs(v3(2)),abs(v3(3)),abs(v3(4))
-     write(6,5001)nmass(4),abs(v4(1)),abs(v4(2)),abs(v4(3)),abs(v4(4))
-     write(6,5002)
-     write(6,5003)cmass(1),abs(U(1,1)),abs(U(2,1)),abs(V(1,1)),abs(V(2,1))  ! could be (2,1) or (1,2) ...
-     write(6,5003)cmass(2),abs(U(1,2)),abs(U(2,2)),abs(V(1,2)),abs(V(2,2))  !
+!     write(6,5000)
+!     write(6,5001)nmass(1),abs(v1(1)),abs(v1(2)),abs(v1(3)),abs(v1(4))
+!     write(6,5001)nmass(2),abs(v2(1)),abs(v2(2)),abs(v2(3)),abs(v2(4))
+!     write(6,5001)nmass(3),abs(v3(1)),abs(v3(2)),abs(v3(3)),abs(v3(4))
+!     write(6,5001)nmass(4),abs(v4(1)),abs(v4(2)),abs(v4(3)),abs(v4(4))
+     write(6,6000)
+     write(6,5001)snmass(1),v1(1),v1(2),v1(3),v1(4)
+     write(6,5001)snmass(2),v2(1),v2(2),v2(3),v2(4)
+     write(6,5001)snmass(3),v3(1),v3(2),v3(3),v3(4)
+     write(6,5001)snmass(4),v4(1),v4(2),v4(3),v4(4)
+!     write(6,5002)
+!     write(6,5003)cmass(1),abs(U(1,1)),abs(U(2,1)),abs(V(1,1)),abs(V(2,1))  ! could be (2,1) or (1,2) ...
+!     write(6,5003)cmass(2),abs(U(1,2)),abs(U(2,2)),abs(V(1,2)),abs(V(2,2))  !
+     write(6,6002)
+     write(6,5003)cmass(1),U(1,1),U(2,1),V(1,1),V(2,1)  ! could be (2,1) or (1,2) ...
+     write(6,5003)cmass(2),U(1,2),U(2,2),V(1,2),V(2,2)  !
      write(6,*)'DMs ',cmass(1)-nmass(1),nmass(2)-cmass(1),nmass(2)-nmass(1) 
   endif
 1000 format('Neutralino ',i1,3x,f10.4)
@@ -271,8 +279,10 @@ subroutine electroweakino(M1,M2,mu,tanb)
 ! ,/,   &
 !            ' ~chi^0  ',4(1x,f10.3),/' ~chi^+- ',1x,f10.3,1x,f10.3)
 5000 format(/,' ~chi^0              m    |~B|  |~W_3|  |~H_1|  |~H_2|')
+6000 format(/,' ~chi^0              m     ~B    ~W_3    ~H_1    ~H_2 ')
 5001 format(12x,f10.3,4(1x,f7.3))
 5002 format(/,' ~chi^+-             m   U:|~W|   |~H|   V:|~W|   |~H|')
+6002 format(/,' ~chi^+-             m   U: ~W     ~H    V: ~W     ~H ')
 5003 format(12x,f10.3,4(1x,f7.3))
 
 end subroutine electroweakino
@@ -545,8 +555,205 @@ gammaR = atan2(1.0d0/y1,1.0d0)
 if(lprint)print *,'Chargino mixing angles (gammaL, gammaR) ',gammaL,gammaR
 if(lprint)print *,'Chargino mixing angles sin(gammaL, gammaR) ',sin(gammaL),sin(gammaR)
 
-
 end subroutine charginomasses
+
+subroutine KMinversion(M2,mu,tanb,mN,M1)
+! perform Kneur-Moultaka inversion (PRD 59 (1998) 015005)
+implicit none
+  integer, parameter :: real_8_30 = selected_real_kind(p=8,r=30)
+  integer, parameter :: complex_kind = selected_real_kind(12,70)
+real(real_8_30) :: M2, mu, tanb, mN, M1
+real(real_8_30) :: mZ, mW, s2W, c2W, cW, sW, beta, cb, sb, c2b, s2b
+real(real_8_30) :: a1, a2, a3, a4
+real(real_8_30) :: A,C,D,sqrtD,Bx,By,phase
+real(real_8_30) :: factor, mN1, mN3, mN4, pie
+real(real_8_30) :: S1, S3, S4, P1, P3, P4, M1A, M1B, M1C
+complex(kind=complex_kind) :: Bcubed, B,CC,F
+
+
+include 'lprint.inc'
+
+! constants
+mZ  = 91.1876d0
+mW  = 80.379d0
+s2W = 0.232d0
+c2W = 1.0d0-s2W
+sW = sqrt(s2W)
+cW = sqrt(1.0-s2W)
+beta = atan2(tanb,1.0d0)
+cb = cos(beta)
+sb = sin(beta)
+c2b = cos(2.0d0*beta)
+s2b = sin(2.0d0*beta)
+
+if(lprint)print *,'KM inversion with M2, mu, tanb, mN = ',M2,mu,tanb,mN
+
+! Coefficients of the cubic equation, B6
+
+a1 = mN**3 + M2*(mu**2-mN**2) - mN*(mu**2 + c2W*mZ**2) - c2W*mu*mZ**2*s2b
+a2 = s2W*mZ**2*(mN - M2)*(mN + mu*s2b) - M2*a1
+a3 = s2W*mZ**2*(mN**3 + mu*s2b*(M2 - mN)**2 + M2*mN*(M2 - 2.0d0*mN)) - a1*(mu**2+mZ**2)
+a4 = mu*(s2W*mZ**2*(M2*(M2-mN)*(mu+mN*s2b) + c2W*mZ**2*s2b*(mu*s2b+mN)) + a1*(mu*M2 - c2W*mZ**2*s2b))
+
+if(lprint)print *,'(a1,a2,a3,a4) = ',a1,a2,a3,a4
+
+A = 3.0d0*a1*a3 - a2**2
+C = -2.0d0*a2**3 + 9.0d0*a1*a2*a3 - 27.0d0*a1*a1*a4
+
+if(lprint)print *,'(A,C) = ',A,C
+
+D = 4.0d0*A*A*A + C*C
+
+if(D.gt.0.0d0)then
+   sqrtD = sqrt(D)
+   F = sqrtD
+else
+   sqrtD = sqrt(-D)
+   F = cmplx(0.0d0,sqrtD,complex_kind)
+endif
+
+if(lprint)print *,' D = ',D,' F = ',F
+
+CC = cmplx(C,0.0d0,complex_kind)
+
+Bcubed = CC + F
+B = Bcubed**(1.0d0/3.0d0)
+
+if(lprint)print *,'(Bcubed,B,|B|^2) = ',Bcubed,B,B*conjg(B)
+
+Bx = dble(realpart(B))
+By = dble(imagpart(B))
+
+if(lprint)print *,'Bx, By ',Bx,By
+
+phase=atan2(by,bx)
+
+if(lprint)print *,'phase ',phase
+
+factor = -1.0d0/(3.0d0*a1)
+pie = 4.0d0*atan(1.0d0)
+
+mN1 = factor*(a2 - 2.0d0*sqrt(-A)*cos(phase) )
+mN3 = factor*(a2 + 2.0d0*sqrt(-A)*cos(phase - (pie/3.0d0) ) )
+mN4 = factor*(a2 + 2.0d0*sqrt(-A)*cos(phase + (pie/3.0d0) ) )
+
+if(lprint)print *,'mN1, mN3, mN4 ',mN1,mN3,mN4
+
+! Also should check M1 calculation for each neutralino-pair using eqn 3.15
+
+S1 = mN + mN1
+S3 = mN + mN3
+S4 = mN + mN4
+P1 = mN*mN1
+P3 = mN*mN3
+P4 = mN*mN4
+
+M1A = -(P1**2 + P1*(mu**2 + MZ**2 + M2*S1 - S1**2) + mu*mZ**2*M2*s2W*s2b)/(P1*(S1-M2) + mu*(c2W*mZ**2*s2b - mu*M2))
+M1B = -(P3**2 + P3*(mu**2 + MZ**2 + M2*S3 - S3**2) + mu*mZ**2*M2*s2W*s2b)/(P3*(S3-M2) + mu*(c2W*mZ**2*s2b - mu*M2))
+M1C = -(P4**2 + P4*(mu**2 + MZ**2 + M2*S4 - S4**2) + mu*mZ**2*M2*s2W*s2b)/(P4*(S4-M2) + mu*(c2W*mZ**2*s2b - mu*M2))
+
+if(lprint)print *,'M1A, M1B, M1C ',M1A,M1B,M1C
+
+! Set M1 as the average of these three numbers
+M1 = (M1A+M1B+M1C)/3.0d0
+
+if(lprint)print *,'KM value of M1 set as ',M1
+
+end subroutine KMinversion
+
+subroutine calcM2mu(mC1, mC2, tanb, M2sq1, musq1, M2sq2, musq2, M2sq3, musq3, M2sq4, musq4)
+! Purpose from specified chargino masses and tanb calculate musq and M2sq
+! Use Kneur and Moultaka method S1
+implicit none
+  integer, parameter :: real_8_30 = selected_real_kind(p=8,r=30)
+real(real_8_30) :: mC1, mC2, tanb
+real(real_8_30) :: M2sq1, musq1, M2sq2, musq2
+real(real_8_30) :: M2sq3, musq3, M2sq4, musq4
+real(real_8_30) :: mW, s2W, cW, sW, beta, cb, sb, c2b, s2b
+real(real_8_30) :: Delta1, Delta2,cos2p,cosp,sinp,A
+include 'lprint.inc'
+
+if(lprint)print *,' New calcM2mu uses ',mC1,mC2,tanb
+
+! constants
+mW  = 80.379d0
+s2W = 0.232d0
+sW = sqrt(s2W)
+cW = sqrt(1.0-s2W)
+beta = atan2(tanb,1.0d0)
+cb = cos(beta)
+sb = sin(beta)
+c2b = cos(2.0d0*beta)
+s2b = sin(2.0d0*beta)
+
+A = mC1**2 + mC2**2 - 2.0d0*mW**2
+musq1 = 0.5d0*(A - sqrt(A**2 - 4.0d0*(mW**2*s2b + mC1*mC2)**2))
+musq2 = 0.5d0*(A + sqrt(A**2 - 4.0d0*(mW**2*s2b + mC1*mC2)**2))
+musq3 = 0.5d0*(A - sqrt(A**2 - 4.0d0*(mW**2*s2b - mC1*mC2)**2))
+musq4 = 0.5d0*(A + sqrt(A**2 - 4.0d0*(mW**2*s2b - mC1*mC2)**2))
+
+M2sq1 = A - musq1
+M2sq2 = A - musq2
+M2sq3 = A - musq3
+M2sq4 = A - musq4
+
+if(lprint)print *,' calcM2mu (Soln 1), M2sq, musq = ',M2sq1,musq1,sqrt(M2sq1),sqrt(musq1)
+if(lprint)print *,' calcM2mu (Soln 2), M2sq, musq = ',M2sq2,musq2,sqrt(M2sq2),sqrt(musq2)
+if(lprint)print *,' calcM2mu (Soln 3), M2sq, musq = ',M2sq3,musq3,sqrt(M2sq3),-sqrt(musq3)
+if(lprint)print *,' calcM2mu (Soln 4), M2sq, musq = ',M2sq4,musq4,sqrt(M2sq4),-sqrt(musq4)
+
+end subroutine calcM2mu
+
+subroutine calcM2muAD(mC1, mC2, tanb, M2sq1, musq1, M2sq2, musq2)
+! Purpose from specified chargino masses and tanb calculate M2sq and musq
+! using formulae A13 and A14 in Ahmadov and Demirci, PRD88 (2013) 015017.
+! There are two solutions for either the |mu| < M2 or |mu| > M2 regimes. 
+implicit none
+  integer, parameter :: real_8_30 = selected_real_kind(p=8,r=30)
+real(real_8_30) :: mC1, mC2, tanb
+real(real_8_30) :: M2sq1, musq1, M2sq2, musq2
+real(real_8_30) :: mW, s2W, cW, sW, beta, cb, sb, c2b, s2b
+real(real_8_30) :: Delta1, Delta2,cos2p,cosp,sinp,A
+include 'lprint.inc'
+
+if(lprint)print *,' calcM2mu uses ',mC1,mC2,tanb
+
+! constants
+mW  = 80.379d0
+s2W = 0.232d0
+sW = sqrt(s2W)
+cW = sqrt(1.0-s2W)
+beta = atan2(tanb,1.0d0)
+cb = cos(beta)
+sb = sin(beta)
+c2b = cos(2.0d0*beta)
+s2b = sin(2.0d0*beta)
+
+cos2p = 1.0d0
+cosp = 1.0d0
+sinp = 0.0d0
+
+! After A14
+Delta1 = 4.0d0*(mC1*mC1*mC2*mC2 + mW**4*cos2p*s2b*s2b +                &
+         2.0d0*mW*mW*cosp*s2b*sqrt(mC1*mC1*mC2*mC2 - (mW**2*s2b*sinp)**2))
+
+Delta2 = 4.0d0*(mC1*mC1*mC2*mC2 + mW**4*cos2p*s2b*s2b -                &
+         2.0d0*mW*mW*cosp*s2b*sqrt(mC1*mC1*mC2*mC2 - (mW**2*s2b*sinp)**2))
+
+A = mC1**2 + mC2**2 - 2.0d0*mW**2
+
+! A13
+M2sq1 = 0.5d0*( A - sqrt( A**2 - Delta1 ) )
+M2sq2 = 0.5d0*( A + sqrt( A**2 - Delta2 ) )
+! A14
+musq1 = 0.5d0*( A + sqrt( A**2 - Delta1 ) )
+musq2 = 0.5d0*( A - sqrt( A**2 - Delta2 ) )
+
+if(lprint)print *,' calcM2mu Delta1, Delta2 = ',Delta1,Delta2
+if(lprint)print *,' calcM2mu (Soln 1), M2sq, musq = ',M2sq1,musq1,sqrt(M2sq1),sqrt(musq1)
+if(lprint)print *,' calcM2mu (Soln 2), M2sq, musq = ',M2sq2,musq2,sqrt(M2sq2),sqrt(musq2)
+
+end subroutine calcM2muAD
 
 subroutine sortthem(w,iordered)
 ! Take the mass eigenvalues and sort them by absolute value

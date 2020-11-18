@@ -19,11 +19,11 @@ ln -s lprint_true.inc lprint.inc
 #ln -s glpA.dat ewdriver_inputs.dat
 #ln -s glpD.dat ewdriver_inputs.dat
 #ln -s testf.dat ewdriver_inputs.dat
-ln -s test6.dat ewdriver_inputs.dat
+ln -s test7.dat ewdriver_inputs.dat
 
-gfortran -c electroweakino.f90
-gfortran -o ewdriver ewdriver.f90 electroweakino.o -lblas -llapack
-rm electroweakino.o   #not needed now
+gfortran -c electroweakino2.f90
+gfortran -o ewdriver ewdriver.f90 electroweakino2.o -lblas -llapack
+rm electroweakino2.o   #not needed now
 rm lprint.inc
 
 rm ewdriver_inputs.dat
