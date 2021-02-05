@@ -1,4 +1,4 @@
-subroutine electroweakino(M1,M2,mu,tanb)
+subroutine electroweakino(M1,M2,mu,tanb,mN1,mN2,iflag)
 ! 
 ! Read in electroweakino parameters, M1, M2, mu, tanb and construct the 
 ! neutralino mass matrix Y following Gounaris, Le Mouel, Porfyriadis (2002).
@@ -36,10 +36,11 @@ subroutine electroweakino(M1,M2,mu,tanb)
   implicit none
 
   integer, parameter :: real_8_30 = selected_real_kind(p=8,r=30)
-  integer :: i
+  integer :: i,j,iflag
   integer :: irow,jcol
   integer :: iordered(4)
   real(real_8_30), intent(in) :: M1, M2, mu, tanb
+  real(real_8_30), intent(out) :: mN1, mN2
   real(real_8_30) :: mZ, mW, s2W, cW, sW, beta, cb, sb
   real(real_8_30) :: v1(4),v2(4),v3(4),v4(4)               ! Neutralino compositions
   real(real_8_30) :: Y(4,4)
@@ -263,6 +264,45 @@ subroutine electroweakino(M1,M2,mu,tanb)
      write(6,5003)cmass(2),U(1,2),U(2,2),V(1,2),V(2,2)  !
      write(6,*)'DMs ',cmass(1)-nmass(1),nmass(2)-cmass(1),nmass(2)-nmass(1) 
   endif
+  if(iflag.eq.1)then
+! Also write SLHA type info for input to SUSY-HIT
+  write(10,7001)snmass(1)
+  write(10,7002)snmass(2)
+  write(10,7003)snmass(3)
+  write(10,7004)snmass(4)
+  write(10,7005)cmass(1)
+  write(10,7006)cmass(2)
+  write(10,8000)
+  do i=1,4
+     write(10,8001)i,v1(i)
+  enddo
+  do i=1,4
+     write(10,8002)i,v2(i)
+  enddo
+  do i=1,4
+     write(10,8003)i,v3(i)
+  enddo
+  do i=1,4
+     write(10,8004)i,v4(i)
+  enddo
+  write(10,8010)
+  do i=1,2
+     do j=1,2
+        write(10,8011)i,j,U(i,j)
+     enddo
+  enddo
+  write(10,8020)
+  do i=1,2
+     do j=1,2
+        write(10,8011)i,j,V(i,j)
+     enddo
+  enddo
+  endif
+
+! Set return values of neutralino masses
+  mN1 = snmass(1)
+  mN2 = snmass(2)
+
 1000 format('Neutralino ',i1,3x,f10.4)
 2001 format('X = {{',f10.4,',',f10.4,'} , {',f10.4,',',f10.4,'}}')
 1001 format('Y = {{',f10.4,',',f10.4,',',f10.4,',',f10.4,'},')
@@ -284,6 +324,22 @@ subroutine electroweakino(M1,M2,mu,tanb)
 5002 format(/,' ~chi^+-             m   U:|~W|   |~H|   V:|~W|   |~H|')
 6002 format(/,' ~chi^+-             m   U: ~W     ~H    V: ~W     ~H ')
 5003 format(12x,f10.3,4(1x,f7.3))
+
+7001 format(3x,'1000022',3x,e16.8)
+7002 format(3x,'1000023',3x,e16.8)
+7003 format(3x,'1000025',3x,e16.8)
+7004 format(3x,'1000035',3x,e16.8)
+7005 format(3x,'1000024',3x,e16.8)
+7006 format(3x,'1000037',3x,e16.8)
+8000 format('#',/,'BLOCK NMIX  # Neutralino Mixing Matrix')
+8010 format('#',/,'BLOCK UMIX  # Chargino Mixing Matrix U')
+8020 format('#',/,'BLOCK VMIX  # Chargino Mixing Matrix V')
+8001 format(2x,'1',2x,i1,3x,e16.8)
+8002 format(2x,'2',2x,i1,3x,e16.8)
+8003 format(2x,'3',2x,i1,3x,e16.8)
+8004 format(2x,'4',2x,i1,3x,e16.8)
+8011 format(2x,i1,2x,i1,3x,e16.8)
+
 
 end subroutine electroweakino
 
