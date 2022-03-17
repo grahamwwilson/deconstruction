@@ -25,8 +25,8 @@ include 'ewdriver_inputs.dat'
 !mC2 = 400.0d0
 !mC1 = 145.86422024179075d0
 !mC2 = 622.95862345364026d0
-mC1 = 200.0d0
-mC2 = 800.0d0
+mC1 = 235.0d0
+mC2 = 500.0d0
 !tanb=10.0d0
 !tanb=5.4364d0
 
@@ -38,10 +38,12 @@ tanb = 10.0d0
 M2mutest = mW*mW*sin(2.0d0*atan(tanb)) - mC1*mC2
 print *,'M2mutest = ',M2mutest
 
+! Find potential M2 and mu values consistent with mC1, mC2, tanb 
+! using Kneur and Moultaka method S1
 call calcM2mu(mC1, mC2, tanb, M2sq1, musq1, M2sq2, musq2, M2sq3, musq3, M2sq4, musq4)
 
 !Define solution choice
- ichoice = 3
+ichoice = 1
 
  889 continue
 
@@ -76,7 +78,7 @@ M1=0.5d0*M2
 
 !mN = 129.665d0
 !mN = -168.8824d0
-mN = -195.0d0
+mN = 220.0d0
 print *,' mN set to ',mN
 call KMinversion(M2,mu,tanb,mN,M1)
 
@@ -86,7 +88,7 @@ call electroweakino(M1,M2,mu,tanb,mN1,mN2,iflag)
 print *,'Found values of mN1 and mN2 = ',mN1, mN2,' using tanb = ',tanb
 ! Iterate on tanb until mN2=mC1
 
-massdiff = abs(mN2) - mC1
+massdiff = abs(mN2) - mC1 - 15.0
 print *,'Mass difference of ',massdiff,' with tanb = ',tanb
 
 !ichoice = ichoice + 1
@@ -94,7 +96,7 @@ print *,'Mass difference of ',massdiff,' with tanb = ',tanb
 
 ! May need some tuning for convergence for other scenarios ...
 if(abs(massdiff).gt.1.0d-7)then
-   tanb = tanb - 5.0d0*massdiff*(mN/abs(mN))*(mu/abs(mu))
+   tanb = tanb + 1.0d0*massdiff*(mN/abs(mN))*(mu/abs(mu))
    goto 888
 endif
 
