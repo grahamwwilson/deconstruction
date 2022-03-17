@@ -7,17 +7,17 @@ using namespace std;
 
 // electroweakino.f90
 extern"C" {
-void electroweakino_(float *M1, float *M2, float *mu, float *tanb);
+void electroweakino_(double *M1, double *M2, double *mu, double *tanb);
 }
 
 // struct for mval common block
 extern "C" {
    extern struct{
-      float n1,n2,n3,n4;
-      float c1,c2;
-      float v1[4],v2[4],v3[4],v4[4];
-      float U[4], V[4];
-      float sn1,sn2,sn3,sn4;
+      double n1,n2,n3,n4;
+      double c1,c2;
+      double v1[4],v2[4],v3[4],v4[4];
+      double U[4], V[4];
+      double sn1,sn2,sn3,sn4;
    } mval_;                                // Filled using mval common block
 }
 
@@ -47,48 +47,48 @@ int main()
  TFile* f;
  f = (TFile*) new TFile("histos_ewinos_Point.root","recreate");
 
- TH1F* hn1type = (TH1F*) new TH1F("hn1type","; N1 type ", 3, 0.5, 3.5);
- TH1F* hn2type = (TH1F*) new TH1F("hn2type","; N2 type ", 3, 0.5, 3.5);
- TH1F* hn3type = (TH1F*) new TH1F("hn3type","; N3 type ", 3, 0.5, 3.5);
- TH1F* hn4type = (TH1F*) new TH1F("hn4type","; N4 type ", 3, 0.5, 3.5);
+ TH1D* hn1type = (TH1D*) new TH1D("hn1type","; N1 type ", 3, 0.5, 3.5);
+ TH1D* hn2type = (TH1D*) new TH1D("hn2type","; N2 type ", 3, 0.5, 3.5);
+ TH1D* hn3type = (TH1D*) new TH1D("hn3type","; N3 type ", 3, 0.5, 3.5);
+ TH1D* hn4type = (TH1D*) new TH1D("hn4type","; N4 type ", 3, 0.5, 3.5);
 
- TH1F* hn1 = (TH1F*) new TH1F("hn1","; Mass(N1) (GeV) ", 100, 0.0, 1000.0);
- TH1F* hn2 = (TH1F*) new TH1F("hn2","; Mass(N2) (GeV) ", 100, 0.0, 1000.0);
- TH1F* hn3 = (TH1F*) new TH1F("hn3","; Mass(N3) (GeV) ", 100, 0.0, 1000.0);
- TH1F* hn4 = (TH1F*) new TH1F("hn4","; Mass(N4) (GeV) ", 100, 0.0, 1000.0);
- TH1F* hc1 = (TH1F*) new TH1F("hc1","; Mass(C1) (GeV) ", 100, 0.0, 1000.0);
- TH1F* hc2 = (TH1F*) new TH1F("hc2","; Mass(C2) (GeV) ", 100, 0.0, 1000.0);
+ TH1D* hn1 = (TH1D*) new TH1D("hn1","; Mass(N1) (GeV) ", 100, 0.0, 1000.0);
+ TH1D* hn2 = (TH1D*) new TH1D("hn2","; Mass(N2) (GeV) ", 100, 0.0, 1000.0);
+ TH1D* hn3 = (TH1D*) new TH1D("hn3","; Mass(N3) (GeV) ", 100, 0.0, 1000.0);
+ TH1D* hn4 = (TH1D*) new TH1D("hn4","; Mass(N4) (GeV) ", 100, 0.0, 1000.0);
+ TH1D* hc1 = (TH1D*) new TH1D("hc1","; Mass(C1) (GeV) ", 100, 0.0, 1000.0);
+ TH1D* hc2 = (TH1D*) new TH1D("hc2","; Mass(C2) (GeV) ", 100, 0.0, 1000.0);
 
- TH1F* hdm = (TH1F*) new TH1F("hdm","; DeltaM (N2-N1) (GeV)",100, -10.0, 190.0);
- TH1F* hdc = (TH1F*) new TH1F("hdc","; DeltaM (C1-N1) (GeV)",100, -10.0, 190.0);
- TH1F* hdn = (TH1F*) new TH1F("hdn","; DeltaM (N2-C1) (GeV)",100, -10.0, 190.0);
+ TH1D* hdm = (TH1D*) new TH1D("hdm","; DeltaM (N2-N1) (GeV)",100, -10.0, 190.0);
+ TH1D* hdc = (TH1D*) new TH1D("hdc","; DeltaM (C1-N1) (GeV)",100, -10.0, 190.0);
+ TH1D* hdn = (TH1D*) new TH1D("hdn","; DeltaM (N2-C1) (GeV)",100, -10.0, 190.0);
 
- TH2F* hdcn = (TH2F*) new TH2F("hdcn","; Mass (C1) (GeV); Mass (N1) (GeV)", 
+ TH2D* hdcn = (TH2D*) new TH2D("hdcn","; Mass (C1) (GeV); Mass (N1) (GeV)", 
                                100, 100.0, 750.0, 100, 0.0, 600.0);
 
- TH2F* hdal1 = (TH2F*) new TH2F("hdal1","LSP Mixing (B-W-H)", 
+ TH2D* hdal1 = (TH2D*) new TH2D("hdal1","LSP Mixing (B-W-H)", 
                                120, -0.6, 0.6, 105, -0.35, 0.70);
- TH2F* hdal2 = (TH2F*) new TH2F("hdal2","N2 Mixing (B-W-H)", 
+ TH2D* hdal2 = (TH2D*) new TH2D("hdal2","N2 Mixing (B-W-H)", 
                                120, -0.6, 0.6, 105, -0.35, 0.70);
- TH2F* hdal3 = (TH2F*) new TH2F("hdal3","N3 Mixing (B-W-H)", 
+ TH2D* hdal3 = (TH2D*) new TH2D("hdal3","N3 Mixing (B-W-H)", 
                                120, -0.6, 0.6, 105, -0.35, 0.70);
- TH2F* hdal4 = (TH2F*) new TH2F("hdal4","N4 Mixing (B-W-H)", 
+ TH2D* hdal4 = (TH2D*) new TH2D("hdal4","N4 Mixing (B-W-H)", 
                                120, -0.6, 0.6, 105, -0.35, 0.70);
 
  TRandom1* rg = (TRandom1*) new TRandom1(4358,3);
 
  unsigned long int ntrials = 0;
  int nthrown = 0;
-
+ 
  while (nthrown < 100){
 
       ntrials++;
 
  // Maybe should sample uniformly in logM 
  // Should have a function that returns suitable (M1, M2, mu, tanb) points
-      float M1 = float(rg->Uniform(50.0,2000.0));
-      float M2 = float(rg->Uniform(50.0,2000.0));
-      float mu = float(rg->Uniform(50.0,2000.0));
+      double M1 = double(rg->Uniform(50.0,400.0));
+      double M2 = double(rg->Uniform(50.0,400.0));
+      double mu = double(rg->Uniform(50.0,400.0));
       double test1 = rg->Uniform(1.0);
       double test2 = rg->Uniform(1.0);
       double test3 = rg->Uniform(1.0);
@@ -96,21 +96,24 @@ int main()
       if(test1<0.5)M1=-M1;                       // Sample +/- M1 uniformly
       if(test2<0.5)M2=-M2;                       // Sample +/- M2 uniformly
       if(test3<0.5)mu=-mu;                       // Sample +/- mu uniformly
-      float tanb = float(rg->Uniform(1.0,70.0));
+      double tanb = double(rg->Uniform(1.0,10.0));
       if(test4<0.5)tanb = 1.0/tanb;
  //     if(abs(mu) > M1 || abs(mu) > M2) continue;
  
  // Calculate the corresponding mass spectrum and couplings
-      electroweakino_(&M1, &M2, &mu, &tanb);    // Fortran subroutine
+      electroweakino_(&M1, &M2, &mu, &tanb);     // Fortran subroutine
+/*      cout << "N1 " << mval_.n1 << " N2 " << mval_.n2 
+           << " N3 " << mval_.n3 << " N4 " << mval_.n4 << endl;
+      cout << "C1 " << mval_.c1 << " C2 " << mval_.c2 << endl;      */
 
-//      if( abs(mval_.n1 - 100.0) > 1.0 || abs(mval_.c1 - 105.0) > 1.0 || abs(mval_.c2 - 200.0) > 1.0) continue;
-      if( abs(mval_.n1 - 200.0) > 1.0 || abs(mval_.c1 - 205.0) > 1.0 || abs(mval_.n2 - 205.0) > 1.0) continue;
+//      if( abs(mval_.n1 - 100.0) > 5.0 || abs(mval_.c1 - 105.0) > 5.0 || abs(mval_.c2 - 200.0) > 5.0) continue;
+      if( abs(mval_.n1 - 220.0) > 5.0 || abs(mval_.c1 - 235.0) > 5.0 || abs(mval_.n2 - 250.0) > 5.0) continue;
 
       float fb1 = pow(mval_.v1[0],2);
       float fw1 = pow(mval_.v1[1],2);
       float fh1 = pow(mval_.v1[2],2) + pow(mval_.v1[3],2);
       
-      cout << nthrown << endl; 
+      cout << "SELECTED! " << nthrown << endl; 
       cout << "M1 " << M1 << " M2 " << M2 
            << " mu " << mu << " tanb " << tanb << endl;
       cout << "N1 " << mval_.n1 << " N2 " << mval_.n2 
